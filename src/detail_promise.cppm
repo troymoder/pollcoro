@@ -2,6 +2,7 @@ module;
 
 #if !defined(POLLCORO_IMPORT_STD) || POLLCORO_IMPORT_STD == 0
 #include <coroutine>
+#include <cstddef>
 #include <cstdio>
 #include <exception>
 #include <optional>

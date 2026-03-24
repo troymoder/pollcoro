@@ -21,24 +21,24 @@ class waker {
   public:
     waker() = default;
 
-    waker(void* data, void (*wake_function)(void*)) noexcept
+    waker(void* data, void (*wake_function)(void*))
         : wake_function_(wake_function), data_(data) {}
 
     template<typename WakerType>
-    waker(WakerType& ref) noexcept : waker(&ref) {}
+    waker(WakerType& ref) : waker(&ref) {}
 
     template<typename WakerType>
-    waker(WakerType* waker_ptr) noexcept
+    waker(WakerType* waker_ptr)
         : wake_function_(&detail::waker_wake_function<WakerType>),
           data_(static_cast<void*>(waker_ptr)) {}
 
-    void wake() const noexcept {
+    void wake() const {
         if (wake_function_) {
             wake_function_(data_);
         }
     }
 
-    bool will_wake(const waker& other) const noexcept {
+    bool will_wake(const waker& other) const {
         return data_ == other.data_ && wake_function_ == other.wake_function_;
     }
 };

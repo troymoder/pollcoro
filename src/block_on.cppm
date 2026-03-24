@@ -3,6 +3,7 @@ module;
 #if !defined(POLLCORO_IMPORT_STD) || POLLCORO_IMPORT_STD == 0
 #include <condition_variable>
 #include <mutex>
+#include <type_traits>
 #endif
 
 export module pollcoro:block_on;

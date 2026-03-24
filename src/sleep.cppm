@@ -70,7 +70,7 @@ class sleep_awaitable : public awaitable_always_blocks {
     sleep_awaitable(const sleep_awaitable& other) = delete;
     sleep_awaitable& operator=(const sleep_awaitable& other) = delete;
 
-    sleep_awaitable(sleep_awaitable&& other) noexcept {
+    sleep_awaitable(sleep_awaitable&& other) {
         shared_ = std::move(other.shared_);
         started_ = other.started_;
         deadline_ = other.deadline_;
@@ -79,7 +79,7 @@ class sleep_awaitable : public awaitable_always_blocks {
         other.started_ = false;
     }
 
-    sleep_awaitable& operator=(sleep_awaitable&& other) noexcept {
+    sleep_awaitable& operator=(sleep_awaitable&& other) {
         if (this != &other) {
             reset();
             shared_ = std::move(other.shared_);

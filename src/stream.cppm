@@ -36,12 +36,12 @@ class stream : public awaitable_always_blocks {
     explicit stream(std::coroutine_handle<promise_type> h, bool destroy_on_drop = true)
         : handle_(h), destroy_on_drop_(destroy_on_drop) {}
 
-    stream(stream&& other) noexcept
+    stream(stream&& other)
         : handle_(other.handle_), destroy_on_drop_(other.destroy_on_drop_) {
         other.handle_ = nullptr;
     }
 
-    stream& operator=(stream&& other) noexcept {
+    stream& operator=(stream&& other) {
         if (this != &other) {
             destroy();
             handle_ = other.handle_;

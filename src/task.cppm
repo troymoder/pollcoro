@@ -37,11 +37,11 @@ class task : public awaitable_always_blocks {
     explicit task(std::coroutine_handle<promise_type> h, bool destroy_on_drop = true)
         : handle_(h), destroy_on_drop_(destroy_on_drop) {}
 
-    task(task&& other) noexcept : handle_(other.handle_), destroy_on_drop_(other.destroy_on_drop_) {
+    task(task&& other) : handle_(other.handle_), destroy_on_drop_(other.destroy_on_drop_) {
         other.handle_ = nullptr;
     }
 
-    task& operator=(task&& other) noexcept {
+    task& operator=(task&& other) {
         if (this != &other) {
             destroy();
             handle_ = other.handle_;
@@ -95,7 +95,7 @@ class task : public awaitable_always_blocks {
 
     // The task will be left in an empty state after this call.
     // Useful if you want to work with the underlying coroutine handle.
-    std::coroutine_handle<promise_type> release() && noexcept {
+    std::coroutine_handle<promise_type> release() && {
         return std::exchange(handle_, nullptr);
     }
 

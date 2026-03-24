@@ -3,6 +3,7 @@ module;
 #if !defined(POLLCORO_IMPORT_STD) || POLLCORO_IMPORT_STD == 0
 #include <algorithm>
 #include <atomic>
+#include <cstddef>
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -104,10 +105,10 @@ class shared_lock_guard {
     friend class shared_mutex;
 
   public:
-    shared_lock_guard(shared_lock_guard&& other) noexcept
+    shared_lock_guard(shared_lock_guard&& other)
         : state_(std::exchange(other.state_, nullptr)) {}
 
-    shared_lock_guard& operator=(shared_lock_guard&& other) noexcept {
+    shared_lock_guard& operator=(shared_lock_guard&& other) {
         if (this != &other) {
             if (state_) {
                 state_->release_shared();
@@ -135,7 +136,7 @@ class shared_lock_guard {
     }
 
     /// Check if this guard still holds the lock.
-    explicit operator bool() const noexcept {
+    explicit operator bool() const {
         return state_ != nullptr;
     }
 };
@@ -151,10 +152,10 @@ class unique_lock_guard {
     friend class shared_mutex;
 
   public:
-    unique_lock_guard(unique_lock_guard&& other) noexcept
+    unique_lock_guard(unique_lock_guard&& other)
         : state_(std::exchange(other.state_, nullptr)) {}
 
-    unique_lock_guard& operator=(unique_lock_guard&& other) noexcept {
+    unique_lock_guard& operator=(unique_lock_guard&& other) {
         if (this != &other) {
             if (state_) {
                 state_->release_exclusive();
@@ -182,7 +183,7 @@ class unique_lock_guard {
     }
 
     /// Check if this guard still holds the lock.
-    explicit operator bool() const noexcept {
+    explicit operator bool() const {
         return state_ != nullptr;
     }
 };
@@ -210,12 +211,12 @@ class shared_mutex_read_awaitable : public awaitable_always_blocks {
         waiter_->is_writer_ = false;
     }
 
-    shared_mutex_read_awaitable(shared_mutex_read_awaitable&& other) noexcept
+    shared_mutex_read_awaitable(shared_mutex_read_awaitable&& other)
         : state_(std::exchange(other.state_, nullptr)),
           waiter_(std::move(other.waiter_)),
           registered_(std::exchange(other.registered_, false)) {}
 
-    shared_mutex_read_awaitable& operator=(shared_mutex_read_awaitable&& other) noexcept {
+    shared_mutex_read_awaitable& operator=(shared_mutex_read_awaitable&& other) {
         if (this != &other) {
             deregister();
             state_ = std::exchange(other.state_, nullptr);
@@ -292,12 +293,12 @@ class shared_mutex_write_awaitable : public awaitable_always_blocks {
         waiter_->is_writer_ = true;
     }
 
-    shared_mutex_write_awaitable(shared_mutex_write_awaitable&& other) noexcept
+    shared_mutex_write_awaitable(shared_mutex_write_awaitable&& other)
         : state_(std::exchange(other.state_, nullptr)),
           waiter_(std::move(other.waiter_)),
           registered_(std::exchange(other.registered_, false)) {}
 
-    shared_mutex_write_awaitable& operator=(shared_mutex_write_awaitable&& other) noexcept {
+    shared_mutex_write_awaitable& operator=(shared_mutex_write_awaitable&& other) {
         if (this != &other) {
             deregister();
             state_ = std::exchange(other.state_, nullptr);

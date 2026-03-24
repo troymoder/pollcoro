@@ -99,10 +99,10 @@ class single_event_awaitable : public awaitable_always_blocks {
     single_event_awaitable() : state_(std::make_shared<state>()) {}
 
   public:
-    single_event_awaitable(single_event_awaitable&& other) noexcept
+    single_event_awaitable(single_event_awaitable&& other)
         : state_(std::move(other.state_)) {}
 
-    single_event_awaitable& operator=(single_event_awaitable&& other) noexcept {
+    single_event_awaitable& operator=(single_event_awaitable&& other) {
         if (this != &other) {
             state_ = std::move(other.state_);
         }

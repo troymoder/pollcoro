@@ -3,6 +3,7 @@ module;
 #if !defined(POLLCORO_IMPORT_STD) || POLLCORO_IMPORT_STD == 0
 #include <atomic>
 #include <coroutine>
+#include <exception>
 #include <memory>
 #include <mutex>
 #include <type_traits>
@@ -103,7 +104,7 @@ struct resumable_promise_storage {
         return std::move(std::get<T>(result));
     }
 
-    bool has_value() const noexcept {
+    bool has_value() const {
         return !std::holds_alternative<std::monostate>(result);
     }
 };
@@ -127,7 +128,7 @@ struct resumable_promise_storage<void> {
         }
     }
 
-    bool has_value() const noexcept {
+    bool has_value() const {
         return completed || std::holds_alternative<std::exception_ptr>(result);
     }
 };
@@ -164,11 +165,11 @@ auto to_pollable(Resumable&& resumable) {
 
         task_t(std::coroutine_handle<promise_type> handle) : handle_(handle) {}
 
-        task_t(task_t&& other) noexcept : handle_(other.handle_) {
+        task_t(task_t&& other) : handle_(other.handle_) {
             other.handle_ = nullptr;
         }
 
-        task_t& operator=(task_t&& other) noexcept {
+        task_t& operator=(task_t&& other) {
             if (this != &other) {
                 handle_ = other.handle_;
                 other.handle_ = nullptr;
@@ -246,7 +247,7 @@ auto to_resumable(Awaitable&& awaitable, Scheduler&& scheduler) {
 
         std::coroutine_handle<promise_type> handle_;
 
-        explicit task_t(std::coroutine_handle<promise_type> handle) noexcept : handle_(handle) {}
+        explicit task_t(std::coroutine_handle<promise_type> handle) : handle_(handle) {}
 
         ~task_t() {
             if (handle_) {
@@ -254,9 +255,9 @@ auto to_resumable(Awaitable&& awaitable, Scheduler&& scheduler) {
             }
         }
 
-        task_t(task_t&& other) noexcept : handle_(std::exchange(other.handle_, nullptr)) {}
+        task_t(task_t&& other) : handle_(std::exchange(other.handle_, nullptr)) {}
 
-        task_t& operator=(task_t&& other) noexcept {
+        task_t& operator=(task_t&& other) {
             if (this != &other) {
                 if (handle_) {
                     handle_.destroy();
@@ -286,7 +287,7 @@ auto to_resumable(Awaitable&& awaitable, Scheduler&& scheduler) {
             handle_.resume();
         }
 
-        bool done() const noexcept {
+        bool done() const {
             return handle_.done();
         }
     };
