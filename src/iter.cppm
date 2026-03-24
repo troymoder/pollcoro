@@ -6,6 +6,12 @@ module;
 #include <utility>
 #endif
 
+#if defined(_MSC_VER)
+#define POLLCORO_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#define POLLCORO_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
 export module pollcoro:iter;
 
 #if defined(POLLCORO_IMPORT_STD) && POLLCORO_IMPORT_STD == 1
@@ -32,7 +38,7 @@ class iter_stream_awaitable : public awaitable_never_blocks {
     static constexpr bool owns_storage = !std::is_void_v<Storage>;
     using storage_type = std::conditional_t<owns_storage, Storage, empty_storage>;
 
-    [[no_unique_address]] storage_type storage_;
+    POLLCORO_NO_UNIQUE_ADDRESS storage_type storage_;
     Iterator current_;
     Iterator end_;
 
@@ -111,6 +117,7 @@ constexpr auto iter(Iterator begin, Iterator end) {
 
 // From rvalue range (copy, owning)
 template<typename Storage>
+requires requires(Storage& s) { std::begin(s); std::end(s); }
 constexpr auto iter(Storage storage) {
     using Iter = decltype(std::begin(std::declval<Storage&>()));
     return detail::iter_stream_awaitable<Iter, detail::iter_mode::copy, Storage>(
@@ -126,6 +133,7 @@ constexpr auto iter_move(Iterator begin, Iterator end) {
 
 // From rvalue range (move elements, owning container)
 template<typename Storage>
+requires requires(Storage& s) { std::begin(s); std::end(s); }
 constexpr auto iter_move(Storage storage) {
     using Iter = decltype(std::begin(std::declval<Storage&>()));
     return detail::iter_stream_awaitable<Iter, detail::iter_mode::move, Storage>(
